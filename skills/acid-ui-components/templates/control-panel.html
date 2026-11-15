@@ -21,7 +21,7 @@
     <div class="control"><span>Step</span><acid-button id="button" label="Step" caption="1" color="orange" value="0"></acid-button></div>
     <div class="control"><span>Bypass</span><acid-switch id="switch" label="Bypass" value="0"></acid-switch></div>
     <div class="control"><span>Volume</span><acid-fader id="fader" label="Volume" value="70"></acid-fader></div>
-    <div class="control"><span>Level</span><acid-meter id="meter" label="Level" segments="12" value="0.7"></acid-meter><label><input id="clip" type="checkbox"> Clip</label></div>
+    <div class="control"><span>Level</span><acid-meter id="meter" label="Level" segments="12" value="-6" yellow-start="-12"></acid-meter><label>Level (dB VU) <input id="meter-level" type="range" min="-60" max="6" value="-6"></label></div>
   </div>
   <p>Last value: <output id="result">—</output></p>
   <script type="module">
@@ -30,8 +30,8 @@
     document.querySelectorAll('acid-knob, acid-button, acid-switch, acid-fader').forEach(control => {
       control.addEventListener('input', event => { result.textContent = `${control.id}: ${event.detail.value}`; });
     });
-    document.querySelector('#clip').addEventListener('change', event => {
-      document.querySelector('#meter').clip = event.target.checked;
+    document.querySelector('#meter-level').addEventListener('input', event => {
+      document.querySelector('#meter').value = Number(event.target.value);
     });
   </script>
 </body>
