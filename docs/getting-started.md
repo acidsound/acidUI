@@ -50,7 +50,7 @@ Vite 등의 번들러에서는 파일을 프로젝트의 소스 폴더에 복사
 
 ## 3. 오디오 출력 레벨 연결
 
-`acid-meter`는 UI만 제공하며 직접 오디오를 분석하지 않습니다. 평균 레벨과 클립 여부는 호출하는 코드에서 제공해야 합니다. 이 저장소의 `src/meter-worklet.js`는 오디오가 끊기지 않도록 입력을 출력에 전달하면서 VU 스타일의 평활 레벨과 샘플 피크를 분석합니다. 이 파일을 `vendor/acidui/meter-worklet.js`에도 복사하고 다음 코드를 사용하세요.
+`acid-meter`는 UI만 제공하며 직접 오디오를 분석하지 않습니다. 평균 레벨은 호출하는 코드에서 dB VU로 제공해야 합니다. 이 저장소의 `src/meter-worklet.js`는 오디오가 끊기지 않도록 입력을 출력에 전달하면서 VU 스타일의 평활 레벨과 샘플 피크를 분석합니다. 이 파일을 `vendor/acidui/meter-worklet.js`에도 복사하고 다음 코드를 사용하세요.
 
 ```html
 <button id="start-audio">Start audio</button>
@@ -68,12 +68,10 @@ Vite 등의 번들러에서는 파일을 프로젝트의 소스 폴더에 복사
       const gain = context.createGain();
       gain.gain.value = 0.05;
       source.connect(gain).connect(meterNode).connect(context.destination);
-      let clipUntil = 0;
       meterNode.port.onmessage = ({ data }) => {
         const db = data.level > 0 ? 20 * Math.log10(data.level) : -Infinity;
-        meter.value = Math.max(0, Math.min(1, (db + 60) / 60));
-        if (data.peak >= 1) clipUntil = performance.now() + 1000;
-        meter.clip = performance.now() < clipUntil;
+        // 이 예제는 −18 dBFS 정현파 피크를 0 VU로 보정합니다.
+        meter.value = Number.isFinite(db) ? db + 18 : meter.min;
       };
       await context.resume();
       source.start();
@@ -87,7 +85,7 @@ Vite 등의 번들러에서는 파일을 프로젝트의 소스 폴더에 복사
 </script>
 ```
 
-AudioWorklet은 보안 컨텍스트(HTTPS 또는 localhost)와 브라우저 지원이 필요합니다. 실제 서비스에서는 사용자 제스처로 오디오를 시작하고, 사용이 끝나면 노드를 분리하고 `context.close()`를 호출하세요. 미터의 평균 표시와 클립 경고는 별개이며 true peak나 표준 인증 VU 미터가 아닙니다. [미터 설명](../README.md#미터-동작과-오디오-연결)을 참고하세요.
+AudioWorklet은 보안 컨텍스트(HTTPS 또는 localhost)와 브라우저 지원이 필요합니다. 실제 서비스에서는 사용자 제스처로 오디오를 시작하고, 사용이 끝나면 노드를 분리하고 `context.close()`를 호출하세요. 0 VU 초과는 디지털 클리핑 여부와 다릅니다. 이 미터는 true peak나 표준 인증 VU 미터가 아닙니다. [미터 설명](../README.md#미터-동작과-오디오-연결)을 참고하세요.
 
 ## 4. 실행 가능한 시작 예제
 

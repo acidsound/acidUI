@@ -26,7 +26,7 @@ npm test
 <acid-button label="Step 1" caption="STEP" color="red" value="1"></acid-button>
 <acid-switch label="Waveform" variant="vertical" value="0"></acid-switch>
 <acid-fader label="Volume" min="0" max="100" step="1" value="70" size="lg"></acid-fader>
-<acid-meter label="Output level" segments="12" value="0.5"></acid-meter>
+<acid-meter label="Output level" segments="12" value="-6" yellow-start="-12"></acid-meter>
 ```
 
 컴포넌트는 레이블을 직접 그리지 않으므로 주변 레이아웃에 자유롭게 배치할 수 있습니다. `label`은 접근 가능한 이름입니다. 속성은 생성 후 `setAttribute`로도 바꿀 수 있습니다.
@@ -52,9 +52,10 @@ npm test
 | button | `color` | `orange` | `orange`, `red`, `yellow`, `ivory` |
 | button | `caption` | 빈 문자열 | 버튼 면의 텍스트 |
 | switch, button | `value` | `0` | `0` 또는 `1` |
-| meter | `value` | `0` | 0–1 사이의 정규화된 레벨 |
-| meter | `segments` | `12` | 전체 LED 개수 (6–32, 빨간 클립 구간 포함) |
-| meter | `clip` | 없음 | 불리언 속성, 독립적인 빨간 클립 구간 경고 |
+| meter | `value` | `min` | dB VU 값, `min`–`max` 범위로 제한 |
+| meter | `min`, `max` | `-60`, `6` | 표시 범위 (각각 0 미만, 0 초과) |
+| meter | `yellow-start` | `-12` | 노란 구간의 시작 dB VU (min 초과, 0 미만) |
+| meter | `segments` | `12` | 전체 LED 개수 (6–32) |
 | 전체 | `label` | 컴포넌트 이름 | 접근 가능한 이름 |
 
 모든 요소는 숫자 `value` 프로퍼티를 제공합니다. 프로퍼티 설정은 화면을 갱신하지만 이벤트를 발생시키지 않습니다. 사용자 조작에는 버블링되고 shadow 경계를 통과하는 `input`과 `change` CustomEvent가 발생하며 `detail.value`와 `detail.normalized`를 제공합니다. 노브와 페이더는 수직 드래그 또는 방향키/Home/End, 스위치와 버튼은 클릭 또는 스페이스/엔터로 조작합니다.
@@ -68,12 +69,11 @@ knob.setAttribute('size', 'lg');
 
 ## 미터 동작과 오디오 연결
 
-이 데모는 **VU 스타일 평균 레벨 + 별도 샘플 피크 경고**입니다. 표준 적합 VU 미터나 true-peak 측정기가 아닙니다.
+이 미터는 **VU 스타일 평균 레벨**을 표시합니다. 입력 값의 단위는 dB VU이며, `yellow-start`부터 0까지는 노란색, 0을 초과하면 빨간색, 그 이하는 녹색입니다. `yellow-start`와 `min`/`max`로 구간과 범위를 조정할 수 있습니다.
 
-- 녹색: −60 dBFS부터 −12 dBFS 미만의 평균 레벨. 노란색: −12 dBFS 이상의 평균 레벨. 녹색과 노란색은 아래에서 위로 누적 점등됩니다. 이 경계는 데모의 표시 정책이며 VU 표준의 필수 색상 규정이 아닙니다.
-- 빨간색: 입력 샘플의 절댓값이 1 이상(0 dBFS)에 도달했을 때 별도로 점등하고 1초간 유지합니다. 부동소수점 신호가 1에 도달했다는 경고이지, 실제 출력 장치에서 왜곡이 발생했음을 증명하지는 않습니다. 샘플 사이의 true peak는 검출하지 않습니다.
-- 평균값은 전파 정류된 신호에 약 300 ms 동안 최종값의 99%에 도달하는 1차 평활을 적용합니다. 1 kHz 정현파 기준으로 정류 평균을 보정하여 dBFS에 대응시킵니다. 정확한 표준 VU 계기의 동특성 및 보정과는 다릅니다. VU는 피크를 보장하지 못하므로 빨간 경고는 오디오 스레드의 모든 샘플을 별도 검사합니다.
-- 재사용 컴포넌트는 오디오에 종속되지 않습니다. `meter.value`에 0–1로 정규화된 표시 레벨을, `meter.clip`에 별도 피크 검출 결과를 전달합니다. 데모의 신호 처리 구현은 `src/meter-worklet.js`와 `src/main.js`를 참조하세요. AudioWorklet은 보안 컨텍스트가 필요하며 Play 이후 시작됩니다.
+- 데모는 1 kHz 정현파의 −18 dBFS 피크를 0 VU로 환산합니다. 평활된 전파 정류 평균은 약 300 ms 동안 최종값의 99%에 도달하며, 정현파 기준으로 보정됩니다. 표준 인증 VU 미터는 아닙니다.
+- **0 VU 초과는 디지털 클리핑의 증거가 아닙니다.** VU는 평균 레벨이므로 짧은 피크나 실제 디지털 클립을 놓칠 수 있습니다. 클리핑 보호가 필요하면 별도의 피크/true-peak 미터를 사용하세요.
+- `acid-meter`는 오디오를 분석하지 않습니다. 애플리케이션에서 dB VU 값을 `meter.value`에 전달합니다. 데모 구현은 `src/meter-worklet.js`와 `src/main.js`를 참조하세요. AudioWorklet은 보안 컨텍스트가 필요합니다.
 
 참고: [VU 평균 동작과 피크 검출의 차이](https://www.peak-studios.de/en/peak-meter/), [피크 및 RMS 측정](https://www.bluecataudio.com/Doc/Product_DPeakMeterPro/).
 

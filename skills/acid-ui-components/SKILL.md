@@ -26,7 +26,7 @@ Copy `components.js` and `components.css` to a project's served assets, or impor
 1. Pick the relevant elements and give each a meaningful `label`; add separate visible labels if needed. These are UI controls, not audio engines.
 2. Configure only attributes listed in `references/api-reference.md`; provide explicit `min`, `max`, `step`, and `value` when ranges matter. For knobs use `drag-mode="vertical"` or `"circular"` and keep `min-angle` less than `max-angle`.
 3. Listen to bubbling `input` or `change` CustomEvents and use `event.detail.value` or `.normalized`. Setting `.value` programmatically updates the UI without dispatching an event. `acid-button` is a toggle, not a momentary button.
-4. For a meter, set `value` from a normalized level and set `clip` independently from sample-peak detection. Never infer clipping from the averaged VU-style level. The bundled worklet is approximate, not a standards-certified VU or true-peak meter. Start audio only after user interaction.
+4. For a meter, provide a calibrated dB VU `value` and configure `yellow-start` as needed. Red indicates a level above 0 VU, not verified digital clipping. Never infer digital clipping from an averaged VU-style level. The bundled worklet is approximate, not a standards-certified VU or true-peak meter. Start audio only after user interaction.
 5. Validate with `npm test` and `npm run build`. When changing interaction or meter processing, add tests for the behavior. Check pointer and keyboard interaction, event values, and the demo in a browser where possible.
 
 ## Minimal example
