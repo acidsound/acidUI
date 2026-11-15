@@ -1,0 +1,34 @@
+/* Import this stylesheet with components.js; all selectors are scoped to acid elements. */
+acid-knob,acid-fader,acid-switch,acid-button,acid-meter{box-sizing:border-box;display:block;touch-action:none}
+acid-knob,acid-fader,acid-switch,acid-button{cursor:pointer;outline-offset:3px}
+acid-knob:focus-visible,acid-fader:focus-visible,acid-switch:focus-visible,acid-button:focus-visible{outline:2px solid #ed7134}
+acid-knob{width:65px;height:79px;--knob-scale:1}
+acid-knob[size="sm"]{--knob-scale:.75;width:49px;height:60px}acid-knob[size="lg"]{--knob-scale:1.3;width:85px;height:103px}
+acid-knob .knob-wrap{width:65px;height:65px;position:relative;margin:9px auto 5px;transform:scale(var(--knob-scale));transform-origin:top left}
+acid-knob .knob-ticks{position:absolute;inset:0;border-radius:50%;background:repeating-conic-gradient(from -136deg,#777a70 0deg 1.4deg,transparent 1.4deg 22.5deg);mask:radial-gradient(transparent 0 27px,#000 28px 31px,transparent 32px)}
+acid-knob .knob{position:absolute;inset:8px;border-radius:50%;background:repeating-conic-gradient(#333632 0deg 5deg,#1c1f1d 6deg 10deg);box-shadow:0 3px 4px #0007,0 0 0 1px #777}
+acid-knob .knob:before{content:'';position:absolute;inset:4px;border-radius:50%;background:radial-gradient(circle at 35% 25%,#555852,#292c29 70%);border:1px solid #151815}
+acid-knob[variant="silver"] .knob:before{background:radial-gradient(circle at 35% 25%,#eee,#8e928d 70%)}
+acid-knob .knob i{position:absolute;inset:4px;transform:rotate(var(--angle))}acid-knob .knob i:before{content:'';position:absolute;width:3px;height:13px;background:#eeeee0;left:calc(50% - 1px);top:1px;border-radius:2px}acid-knob[variant="silver"] .knob i:before{background:#292c29}
+acid-fader{height:112px;width:38px;position:relative}acid-fader[size="sm"]{height:85px}acid-fader[size="lg"]{height:150px}
+acid-fader .fader-track{position:absolute;top:10px;bottom:10px;left:16px;width:6px;background:#393c37;border-radius:3px;box-shadow:inset 1px 1px 3px #111}
+acid-fader .fader-track:before{content:'';position:absolute;left:-9px;top:0;height:100%;width:24px;background:repeating-linear-gradient(to bottom,transparent 0 10px,#85887c 10px 11px,transparent 11px 16px)}
+acid-fader .fader-cap{position:absolute;left:-12px;width:30px;height:19px;transform:translateY(-50%);background:linear-gradient(#686b63,#333631 45%,#181b19 50%,#52554e);border:1px solid #222;border-radius:2px;box-shadow:0 3px 3px #0006}
+acid-switch .switch-slot{width:45px;height:20px;display:block;background:#454843;border-radius:3px;box-shadow:inset 0 2px 4px #0008;padding:3px;box-sizing:border-box}
+acid-switch .switch-handle{display:block;width:18px;height:14px;background:linear-gradient(#f1f0e4,#9da097);border-radius:2px;box-shadow:0 1px 2px #111;transition:transform .15s}acid-switch.on .switch-handle{transform:translateX(21px)}acid-switch[size="sm"]{transform:scale(.8)}acid-switch[size="lg"]{transform:scale(1.3)}acid-switch[variant="vertical"] .switch-slot{transform:rotate(-90deg)}
+acid-button{min-width:32px}acid-button .button-light{display:block;width:5px;height:5px;border-radius:50%;background:#20231f;margin:0 auto 5px}acid-button.active .button-light{background:#f45b39;box-shadow:0 0 6px #f94c2a}
+acid-button .button-face{display:flex;align-items:center;justify-content:center;height:37px;background:linear-gradient(#ef9c4e,#d57632);border:1px solid #20231f;border-radius:2px;box-shadow:inset 0 2px #ffd08c,0 3px 0 #20221f;font:9px monospace;color:#30231d}
+acid-button[color="red"] .button-face{background:linear-gradient(#e7653d,#c3432d)}acid-button[color="yellow"] .button-face{background:linear-gradient(#e7c765,#c2a044)}acid-button[color="ivory"] .button-face{background:linear-gradient(#e9e8dc,#bcbbb0)}acid-button:not(.active) .button-face{filter:brightness(.66)}
+acid-meter{display:flex;flex-direction:column-reverse;justify-content:flex-start;gap:2px;width:14px;height:94px}acid-meter i{display:block;flex:1;min-height:0;background:#7d8570;opacity:.35;box-shadow:inset 0 0 2px #647651}acid-meter i.lit{background:#a5d36c;opacity:1;box-shadow:0 0 5px #a5d36c}acid-meter i.hot.lit{background:#ef9257;box-shadow:0 0 5px #ef9257}
+/* Explicit marks only along the selected sweep; the lower dead zone stays empty. */
+acid-knob .knob-ticks{background:none;mask:none}
+acid-knob .knob-ticks i{position:absolute;inset:0;transform:rotate(var(--tick-angle))}
+acid-knob .knob-ticks i:before{content:'';position:absolute;width:1px;height:4px;left:calc(50% - .5px);top:1px;background:var(--acid-tick-color,#777a70)}
+acid-knob .knob-value{display:none;text-align:center;font:10px monospace;color:var(--acid-value-color,#454840)}
+acid-knob[show-value="always"] .knob-value,acid-knob[show-value="hover"]:hover .knob-value,acid-knob[show-value="hover"]:focus-visible .knob-value{display:block}
+acid-knob[disabled]{opacity:.5;cursor:not-allowed}
+/* Distinct, cumulative green/yellow level bars and an independent red clip LED. */
+acid-meter i.green{background:#518044}acid-meter i.yellow{background:#b39a42}acid-meter i.red{background:#a34b3d}
+acid-meter i.green.lit{background:#8dd466;box-shadow:0 0 5px #8dd466;opacity:1}
+acid-meter i.yellow.lit{background:#f4d65d;box-shadow:0 0 5px #f4d65d;opacity:1}
+acid-meter i.red.lit{background:#ff4e3c;box-shadow:0 0 7px #ff4e3c;opacity:1}
